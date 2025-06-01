@@ -1,5 +1,5 @@
 {
-    "name": "Askancy/howlongtobeat",
+    "name": "askancy/howlongtobeat",
     "version": "1.3.1",
     "authors": [
         {
@@ -12,12 +12,12 @@
         "howlongtobeat",
         "hl2b"
     ],
-    "homepage": "https://github.com/Askancy/howlongtobeat",
+    "homepage": "https://github.com/askancy/howlongtobeat",
     "license": "MIT",
     "description": "A PHP wrapper to fetch data from howlongtobeat.com with dynamic API key extraction",
     "autoload": {
         "psr-4": {
-            "Askancy\\HowLongToBeat\\": "src/"
+            "askancy\\HowLongToBeat\\": "src/"
         }
     },
     "require-dev": {
