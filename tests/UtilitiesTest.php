@@ -6,14 +6,14 @@ class UtilitiesTest extends \PHPUnit\Framework\TestCase
 {
     public $utilities;
     
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         
         $this->utilities = new Utilities();
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function flattenArray_flattens_an_array()
     {
         $array = [
@@ -30,7 +30,7 @@ class UtilitiesTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($expected, $this->utilities->flattenArray($array));
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function convertAbbreviationsToNumber_converts_polled_numbers()
     {
         $this->assertEquals('1300', $this->utilities->convertAbbreviationsToNumber('1.3K'));
@@ -41,7 +41,7 @@ class UtilitiesTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('55h 25m', $this->utilities->convertAbbreviationsToNumber('55h 25m'));
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function formatTimeString_converts_dashes_to_null()
     {
         $this->assertNull($this->utilities->formatTimeString('--'));
@@ -50,7 +50,7 @@ class UtilitiesTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('5m', $this->utilities->formatTimeString('5m'));
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function formatTimeString_converts_special_symbols()
     {
         $this->assertEquals('10.5 Hours', $this->utilities->formatTimeString('10½ Hours'));

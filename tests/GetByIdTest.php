@@ -6,14 +6,14 @@ class GetByIdTest extends \PHPUnit\Framework\TestCase
 {
     protected $hl2b;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
         $this->hl2b = new HowLongToBeat();
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_returns_basic_info()
     {
         $game = $this->hl2b->get(10270);
@@ -24,12 +24,11 @@ class GetByIdTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('In The Witcher 3 an ancient evil stirs, awakening. An evil that sows terror and abducts the young. An evil whose name is spoken only in whispers: the Wild Hunt. Led by four wraith commanders, this ravenous band of phantoms is the ultimate predator and has been for centuries. Its quarry: humans.', $game['Description']);
         $this->assertEquals('CD Projekt RED', $game['Developer']);
         $this->assertEquals('CD Projekt, Warner Bros. Interactive Entertainment', $game['Publisher']);
-        $this->assertEquals('Nintendo Switch, PC, PlayStation 4, Xbox One', $game['Playable On']);
+        $this->assertEquals('Nintendo Switch, PC, PlayStation 4, PlayStation 5, Xbox One, Xbox Series X/S', $game['Playable On']);
         $this->assertEquals('Third-Person, Action, Open World, Role-Playing', $game['Genres']);
     }
 
-
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_returns_game_stats()
     {
         $game = $this->hl2b->get(10270);
@@ -42,3 +41,4 @@ class GetByIdTest extends \PHPUnit\Framework\TestCase
         $this->assertGreaterThan(1, strlen($game['Statistics']['Beat']));
     }
 }
+

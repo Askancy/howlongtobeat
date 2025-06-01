@@ -14,7 +14,7 @@ class JSONExtractor implements Extractor
      */
     protected $utilities;
 
-    public function __construct(array $game, Utilities $utilities = null)
+    public function __construct(array $game, ?Utilities $utilities = null)
     {
         $this->game = $game;
         $this->utilities = $utilities ?? new Utilities();

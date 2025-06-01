@@ -1,16 +1,10 @@
 <?php
 
 use Askancy\HowLongToBeat\HowLongToBeat;
-use Symfony\Component\DomCrawler\Crawler;
 
 class SearchTest extends \PHPUnit\Framework\TestCase
 {
-    public function tearDown()
-    {
-        Mockery::close();
-    }
-
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_searches_for_a_game()
     {
         $hl2b = new HowLongToBeat();
@@ -20,7 +14,7 @@ class SearchTest extends \PHPUnit\Framework\TestCase
         $this->assertCount(9, $results['Results']);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_returns_a_game_object()
     {
         $hl2b = new HowLongToBeat();
@@ -36,7 +30,7 @@ class SearchTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('14 Hours', $results['Results'][0]['Summary']['All Styles']);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function it_returns_null_for_empty_completion_times()
     {
         $hl2b = new HowLongToBeat();
