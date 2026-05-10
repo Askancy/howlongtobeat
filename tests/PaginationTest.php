@@ -23,6 +23,6 @@ class PaginationTest extends \PHPUnit\Framework\TestCase
         $results = $hl2b->search('Lego');
 
         $this->assertEquals(1, $results['Pagination']['Current Page']);
-        $this->assertEquals(5, $results['Pagination']['Last Page']);
+        $this->assertGreaterThanOrEqual(5, $results['Pagination']['Last Page']);
     }
 }

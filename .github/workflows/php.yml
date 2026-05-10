@@ -1,25 +1,31 @@
-name: PHP Build
+name: Tests
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ['8.2', '8.3', '8.4']
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: 7.4
+        php-version: ${{ matrix.php-version }}
+        coverage: none
 
     - name: Validate composer.json and composer.lock
-      run: composer validate
+      run: composer validate --strict
 
     - name: Install dependencies
-      run: composer install --prefer-dist --no-progress --no-suggest
-      
+      run: composer install --prefer-dist --no-progress
+
+    - name: Run PHPStan
+      run: vendor/bin/phpstan analyse src --level 5
+
     - name: Run PHPUnit
-      run: ./vendor/bin/phpunit tests
+      run: vendor/bin/phpunit tests

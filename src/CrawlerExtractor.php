@@ -41,7 +41,7 @@ class CrawlerExtractor implements Extractor
             foreach ($rows as $row) {
                 $node->filter(".spreadsheet")->each(function (Crawler $n) use ($key, &$tables, $columns, $utils) {
                     $title = $n->filter('td:first-child')->text();
-                    $data = $n->filter('td:not(:first-child)')->each(function (Crawler $nn) use ($key, &$tables, $columns, $utils) {
+                    $data = $n->filter('td:not(:first-child)')->each(function (Crawler $nn) use ($utils) {
                         return $utils->convertAbbreviationsToNumber($nn->text());
                     });
                     $tables[$key][$title] = array_combine($columns, $data);

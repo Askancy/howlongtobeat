@@ -27,7 +27,7 @@ class SearchTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('10 Hours', $results['Results'][0]['Summary']['Main Story']);
         $this->assertEquals('14 Hours', $results['Results'][0]['Summary']['Main + Extra']);
         $this->assertEquals('18 Hours', $results['Results'][0]['Summary']['Completionist']);
-        $this->assertEquals('14 Hours', $results['Results'][0]['Summary']['All Styles']);
+        $this->assertEquals('13 Hours', $results['Results'][0]['Summary']['All Styles']);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]

@@ -14,61 +14,41 @@ class HowLongToBeat
     private $client;
 
     /**
-     * @var string|null
+     * @var array|null
      */
-    private $apiKey;
+    private $apiData;
 
     /**
-     * @var string|null
+     * @var array|null
      */
-    private static $cachedApiKey = null;
+    private static $cachedApiData = null;
 
     public function __construct(?Client $client = null)
     {
         $this->client = $client ?? HttpClientCreator::create();
-        $this->apiKey = self::$cachedApiKey ?? $this->fetchApiKey();
+        $this->apiData = self::$cachedApiData ?? $this->fetchApiData();
     }
 
     /**
-     * Fetch the API key dynamically from the HowLongToBeat website.
+     * Fetch the API data dynamically from the HowLongToBeat website.
      *
-     * @return string|null
+     * @return array|null
      */
-    private function fetchApiKey(): ?string
+    private function fetchApiData(): ?array
     {
         try {
-            $response = $this->client->get('https://www.howlongtobeat.com');
-            $html = $response->getBody()->getContents();
+            $time = round(microtime(true) * 1000);
+            $response = $this->client->get('https://howlongtobeat.com/api/bleed/init?t=' . $time, [
+                'headers' => [
+                    'Accept' => '*/*',
+                    'Referer' => 'https://howlongtobeat.com/'
+                ]
+            ]);
 
-            $crawler = new Crawler($html);
-            $scripts = $crawler->filter('script[src]');
-
-            foreach ($scripts as $script) {
-                if ($script instanceof \DOMElement) {
-                    $src = $script->getAttribute('src');
-                    if ($src && strpos($src, '_app-') !== false) {
-                        $scriptUrl = 'https://www.howlongtobeat.com' . $src;
-
-                        $scriptResponse = $this->client->get($scriptUrl)->getBody()->getContents();
-
-                        $userIdPattern = '/users\s*:\s*{\s*id\s*:\s*"([^"]+)"/';
-                        if (preg_match($userIdPattern, $scriptResponse, $matches)) {
-                            self::$cachedApiKey = $matches[1];
-                            return $matches[1];
-                        }
-
-                        $concatPattern = '/\/api\/find\/(?:\.concat\("[^"]*"\))*/';
-                        if (preg_match($concatPattern, $scriptResponse, $matches)) {
-                            $parts = explode('.concat', $matches[0]);
-                            $key = '';
-                            foreach ($parts as $part) {
-                                $key .= preg_replace('/["\(\)\[\]\']/', '', $part);
-                            }
-                            self::$cachedApiKey = $key;
-                            return $key;
-                        }
-                    }
-                }
+            $data = json_decode($response->getBody()->getContents(), true);
+            if (isset($data['token'])) {
+                self::$cachedApiData = $data;
+                return $data;
             }
         } catch (GuzzleException $e) {
             return null;
@@ -82,53 +62,66 @@ class HowLongToBeat
      */
     public function search($query, int $page = 1): array
     {
-        if (!$this->apiKey) {
+        if (!$this->apiData || !isset($this->apiData['token'])) {
             throw new \RuntimeException('Unable to fetch API key.');
         }
 
         try {
-            $response = $this->client->post('https://howlongtobeat.com' . $this->apiKey, [
-                'json' =>
-                [
-                    'searchType' => 'games',
-                    'searchTerms' => explode(' ', $query),
-                    'searchPage' => $page,
-                    'size' => 20,
-                    'searchOptions' => [
-                        'games' => [
-                            'userId' => 0,
-                            'platform' => '',
-                            'sortCategory' => 'popular',
-                            'rangeCategory' => 'main',
-                            'rangeTime' => [
-                                'min' => 0,
-                                'max' => 0,
-                            ],
-                            'gameplay' => [
-                                'perspective' => '',
-                                'flow' => '',
-                                'genre' => '',
-                                'difficulty' => '',
-                            ],
-                            'rangeYear' => [
-                                'min' => '',
-                                'max' => '',
-                            ],
-                            'modifier' => '',
+            $payload = [
+                'searchType' => 'games',
+                'searchTerms' => explode(' ', $query),
+                'searchPage' => $page,
+                'size' => 20,
+                'searchOptions' => [
+                    'games' => [
+                        'userId' => 0,
+                        'platform' => '',
+                        'sortCategory' => 'popular',
+                        'rangeCategory' => 'main',
+                        'rangeTime' => [
+                            'min' => 0,
+                            'max' => 0,
                         ],
-                        'users' => [
-                            'sortCategory' => 'postcount',
-                            'id' => $this->apiKey,
+                        'gameplay' => [
+                            'perspective' => '',
+                            'flow' => '',
+                            'genre' => '',
+                            'difficulty' => '',
                         ],
-                        'lists' => [
-                            'sortCategory' => 'follows',
+                        'rangeYear' => [
+                            'min' => '',
+                            'max' => '',
                         ],
-                        'filter' => '',
-                        'sort' => 0,
-                        'randomizer' => 0,
+                        'modifier' => '',
                     ],
-                    'useCache' => true,
-                ]
+                    'users' => [
+                        'sortCategory' => 'postcount',
+                    ],
+                    'lists' => [
+                        'sortCategory' => 'follows',
+                    ],
+                    'filter' => '',
+                    'sort' => 0,
+                    'randomizer' => 0,
+                ],
+                'useCache' => true,
+            ];
+
+            $headers = [
+                'Content-Type' => 'application/json',
+                'x-auth-token' => $this->apiData['token'],
+                'Referer' => 'https://howlongtobeat.com/'
+            ];
+
+            if (isset($this->apiData['hpKey']) && isset($this->apiData['hpVal'])) {
+                $payload[$this->apiData['hpKey']] = $this->apiData['hpVal'];
+                $headers['x-hp-key'] = $this->apiData['hpKey'];
+                $headers['x-hp-val'] = $this->apiData['hpVal'];
+            }
+
+            $response = $this->client->post('https://howlongtobeat.com/api/bleed', [
+                'headers' => $headers,
+                'json' => $payload
             ]);
 
             $searchResult = json_decode($response->getBody()->getContents(), true);
@@ -149,8 +142,8 @@ class HowLongToBeat
                 ]
             ];
         } catch (GuzzleException $e) {
-            if ($e->getCode() === 404) {
-                $this->apiKey = $this->fetchApiKey();
+            if ($e->getCode() === 403 || $e->getCode() === 404) {
+                $this->apiData = $this->fetchApiData();
                 return $this->search($query, $page);
             }
 
