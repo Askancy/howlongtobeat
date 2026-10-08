@@ -11,7 +11,8 @@ class SearchTest extends \PHPUnit\Framework\TestCase
 
         $results = $hl2b->search('The Witcher 3');
 
-        $this->assertCount(9, $results['Results']);
+        $this->assertNotEmpty($results['Results']);
+        $this->assertStringContainsString('Witcher 3', $results['Results'][0]['Title']);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
